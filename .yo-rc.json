@@ -1,0 +1,26 @@
+{
+    "generator-standardapp": {
+        "contentOnly": true,
+        "originalAnswers": {
+            "appName": "Systemd Unit Installer",
+            "appDescription": "Install/Remove an application via systemd units",
+            "author": "Dave Hermann",
+            "appType": "nodejs",
+            "useExpress": false,
+            "useWebsockets": false,
+            "useConsoleUI": false,
+            "useVue": false,
+            "applicationSlug": "systemd-unit-installer",
+            "applicationRoot": "Systemd Unit Installer",
+            "applicationClass": "SystemdUnitInstaller",
+            "useBabel": false,
+            "useBootstrap": false,
+            "useFontAwesome": false,
+            "devServerPort": null,
+            "useSecureWebsockets": false,
+            "aws_iamRoleArn": null,
+            "aws_lambduhDeploymentBucket": null,
+            "aws_lambduhDeploymentCredential": "default"
+        }
+    }
+}
