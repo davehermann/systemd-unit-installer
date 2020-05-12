@@ -23,12 +23,18 @@ async function parseArguments() {
             + `    i[nstall]    - Create a systemd unit file, and install as a service\n`
             + `    u[ninstall]  - Stop and Uninstall the service\n`
             + `\n`
-            + `--[Options]-- (Only impact install)\n`
+            + `--[Options] for install--\n`
             + `    --account <account name> - Name of system account to run the service\n`
             + `    --ev <variable-list>     - Comma-separated list of NAME=value pairs\n`
             + `    --name <NAME>            - The name for the service\n`
             + `    --no-start               - Create and install the unit file, but do not start/enable it\n`
-            + `    --path                   - Path to application, from current directory (${process.cwd()})\n`
+            + `    --path                   - Path to application, from current directory\n`
+            + `                               Current Directory: ${process.cwd()}\n`
+            + `\n`
+            + `--[Options] for uninstall--\n`
+            + `    --path   - Path to .service file to uninstall.\n`
+            + `               Uninstall will automatically use the first .service in the current directory if not specified.\n`
+            + `               Current Directory: ${process.cwd()}\n`
             ;
 
         return { help };
