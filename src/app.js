@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // NPM Modules
-const { InitializeLogging, OutputFormatting, Trace, Debug, Info, Err, Log } = require(`multi-level-logger`),
+const { InitializeLogging, OutputFormatting, Trace, Debug, Err, Log } = require(`multi-level-logger`),
     { InstallService, RemoveService } = require(`./installer`);
 
 async function parseArguments() {

@@ -5,7 +5,7 @@ const readline = require(`readline`),
 // External Modules
 const { fs, EnsurePathForFile } = require(`@davehermann/fs-utilities`),
     { SpawnProcess } = require(`@davehermann/process-spawner`),
-    { OutputFormatting, Info, Warn, Err, Log } = require(`multi-level-logger`);
+    { OutputFormatting, Err, Log } = require(`multi-level-logger`);
 
 const UNIT_TEMPLATE = path.join(__dirname, `systemd-service-template`);
 
@@ -149,8 +149,8 @@ async function loadTemplate({ serviceName, userAccountName, environmentVariables
     return { template, serviceShortName };
 }
 
-async function writeServiceFile({ serviceUnit, serviceShortName }) {
-    let filePath = path.join(process.cwd(), `${serviceShortName}.service`);
+async function writeServiceFile({ serviceUnit, serviceFileName }) {
+    let filePath = path.join(process.cwd(), serviceFileName);
     await EnsurePathForFile(filePath);
 
     await fs.writeFile(filePath, serviceUnit, { encoding: `utf8` });
@@ -181,6 +181,16 @@ async function linkUnit({ unitLink, generatedServicePath }) {
     Log(`\nThe unit file has been symlinked to '${unitLink}'\n`);
 }
 
+async function startUnit({ serviceName, serviceFileName, doNotStartEnable }) {
+    if (doNotStartEnable) {
+        Log(`${serviceName} service has been configured as a service; however, the systemd unit has not had start or enable run.\n\nPlease start/enable when you are ready to use.`);
+    } else {
+        await SpawnProcess(`sudo systemctl enable ${serviceFileName}`);
+        await SpawnProcess(`sudo systemctl start ${serviceFileName}`);
+        Log(`\n${serviceName} service has been started, and enabled to launch at boot.`);
+    }
+}
+
 async function installService({ serviceName, userAccountName, relativePathToApp, environmentVariables, doNotStartEnable } = {}) {
     Log(`Installing as a systemd unit`);
 
@@ -208,12 +218,16 @@ async function installService({ serviceName, userAccountName, relativePathToApp,
 
     // Load the template file, and replace the username and the working directory in the template
     let { template: serviceUnit, serviceShortName } = await loadTemplate({ serviceName, userAccountName, environmentVariables, relativePathToApp });
+    let serviceFileName = `${serviceShortName}.service`;
 
     // Write to a local .service file
-    let generatedServicePath  = await writeServiceFile({ serviceUnit, serviceShortName });
+    let generatedServicePath  = await writeServiceFile({ serviceUnit, serviceFileName });
 
-    let unitLink = `${path.sep}${path.join(`etc`, `systemd`, `system`, `${serviceShortName}.service`)}`;
+    let unitLink = `${path.sep}${path.join(`etc`, `systemd`, `system`, serviceFileName)}`;
     await linkUnit({ unitLink, generatedServicePath });
+
+    // Start/Enable the unit
+    await startUnit({ serviceName, serviceFileName, doNotStartEnable });
 }
 
 async function removeService() {
