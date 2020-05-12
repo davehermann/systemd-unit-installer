@@ -4,7 +4,10 @@
   "description": "Install/Remove an application via systemd units",
   "main": "src/installer.js",
   "author": "Dave Hermann",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davehermann/systemd-unit-installer"
+  },
   "bin": {
     "service": "./src/app.js"
   },
