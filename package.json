@@ -1,5 +1,5 @@
 {
-  "name": "systemd-unit-installer",
+  "name": "@davehermann/systemd-unit-installer",
   "version": "0.1.0",
   "description": "Install/Remove an application via systemd units",
   "main": "src/installer.js",
