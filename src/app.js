@@ -26,15 +26,16 @@ async function parseArguments() {
             + `--[Options] for install--\n`
             + `    --account <account name> - Name of system account to run the service\n`
             + `    --ev <variable-list>     - Comma-separated list of NAME=value pairs\n`
+            + `    --existing <path>        - Path to existing service file to not regenerate\n`
             + `    --name <NAME>            - The name for the service\n`
             + `    --no-start               - Create and install the unit file, but do not start/enable it\n`
-            + `    --path                   - Path to application, from current directory\n`
+            + `    --path <path>            - Path to application, from current directory\n`
             + `                               Current Directory: ${process.cwd()}\n`
             + `\n`
             + `--[Options] for uninstall--\n`
-            + `    --path   - Path to .service file to uninstall.\n`
-            + `               Uninstall will automatically use the first .service in the current directory if not specified.\n`
-            + `               Current Directory: ${process.cwd()}\n`
+            + `    --path <path>    - Path to .service file to uninstall.\n`
+            + `                       Uninstall will automatically use the first .service in the current directory if not specified.\n`
+            + `                       Current Directory: ${process.cwd()}\n`
             ;
 
         return { help };
@@ -81,6 +82,15 @@ async function parseArguments() {
                         throw new Error(`--ev value required`);
 
                     argList.environmentVariables = vars.split(`,`);
+                }
+                    break;
+
+                case `--existing`: {
+                    let path = args.shift();
+                    if (!path)
+                        throw new Error(`--existing path required`);
+
+                    argList.existingServiceFile = path;
                 }
                     break;
 
@@ -136,6 +146,7 @@ InitializeLogging(process.env.LOG_LEVEL || `info`);
 runLoop()
     .catch(err => {
         // Log the error data as-is
+        Err(`---EXCEPTION--- (Unexpected exit)`);
         Err(err, true);
     });
 

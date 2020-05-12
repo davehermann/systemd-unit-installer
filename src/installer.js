@@ -5,7 +5,7 @@ const readline = require(`readline`),
 // External Modules
 const { fs, EnsurePathForFile } = require(`@davehermann/fs-utilities`),
     { SpawnProcess } = require(`@davehermann/process-spawner`),
-    { OutputFormatting, Debug, Err, Log } = require(`multi-level-logger`);
+    { OutputFormatting, Dev, Trace, Debug, Err, Log } = require(`multi-level-logger`);
 
 const UNIT_TEMPLATE = path.join(__dirname, `systemd-service-template`);
 
@@ -182,14 +182,35 @@ async function linkUnit({ unitLink, generatedServicePath }) {
 }
 
 async function unlinkUnit(unitLink) {
-    await SpawnProcess(`sudo rm ${unitLink}`);
+    // Make sure the link exists, in case disable has removed it
+    let linkExists = true;
+
+    try {
+        await fs.stat(unitLink);
+    } catch (err) {
+        if (err.code == `ENOENT`)
+            linkExists = false;
+        else
+            throw err;
+    }
+
+    if (linkExists)
+        await SpawnProcess(`sudo rm ${unitLink}`);
+
+    Log(`\nThe symlink to '${unitLink}' has been removed\n`);
 }
 
 async function startUnit({ serviceName, serviceFileName, doNotStartEnable }) {
     if (doNotStartEnable) {
         Log(`${serviceName} service has been configured as a service; however, the systemd unit has not had start or enable run.\n\nPlease start/enable when you are ready to use.`);
     } else {
-        await SpawnProcess(`sudo systemctl enable ${serviceFileName}`);
+        try {
+            await SpawnProcess(`sudo systemctl enable ${serviceFileName}`);
+        } catch (err) {
+            // Ignore "systemctl enable" writing to stderr
+            if (err.search(/^Created symlink/) != 0)
+                throw err;
+        }
         await SpawnProcess(`sudo systemctl start ${serviceFileName}`);
         Log(`\n${serviceName} service has been started, and enabled to launch at boot.`);
     }
@@ -197,7 +218,13 @@ async function startUnit({ serviceName, serviceFileName, doNotStartEnable }) {
 
 async function stopUnit({ serviceFileName }) {
     await SpawnProcess(`sudo systemctl stop ${serviceFileName}`);
-    await SpawnProcess(`sudo systemctl disable ${serviceFileName}`);
+    try {
+        await SpawnProcess(`sudo systemctl disable ${serviceFileName}`);
+    } catch (err) {
+        // Ignore "systemctl disable" writing to stderr
+        if (err.search(/^Removed/) != 0)
+            throw err;
+    }
     Log(`\n${serviceFileName} has been stopped, and disabled from launch at boot.`);
 }
 
@@ -214,12 +241,16 @@ async function findService(relativePathToApp) {
     Debug({ relativePathToApp });
 
     let absolutePath = path.join(process.cwd(), relativePathToApp);
+    Trace(absolutePath);
     let serviceUnit = await fs.readFile(absolutePath, { encoding: `utf8` });
+    Dev(serviceUnit);
 
     // Parse the file to get the service name
     let lines = serviceUnit.split(`\n`);
+    Dev(lines);
     let id = lines.find(l => { return l.search(/^SyslogIdentifier/) == 0; });
     let serviceShortName = id.split(`=`)[1];
+    Trace({ id, serviceShortName });
 
     return { absolutePath, serviceShortName };
 }
@@ -228,7 +259,7 @@ function getUnitSymlink(serviceFileName) {
     return `${path.sep}${path.join(`etc`, `systemd`, `system`, serviceFileName)}`;
 }
 
-async function installService({ serviceName, userAccountName, relativePathToApp, environmentVariables, doNotStartEnable } = {}) {
+async function installService({ existingServiceFile, serviceName, userAccountName, relativePathToApp, environmentVariables, doNotStartEnable } = {}) {
     Log(`Installing as a systemd unit`);
 
     // Check for Linux as the OS
@@ -240,25 +271,33 @@ async function installService({ serviceName, userAccountName, relativePathToApp,
     // Check for running as root/via sudo
     checkRunningAsRoot();
 
-    // Get the name of the service
-    serviceName = await nameService(serviceName);
+    let generatedServicePath, serviceFileName;
 
-    // Ask for the username for a user account that can run the service, and confirm it exists
-    userAccountName = await getServiceAccountName(undefined, userAccountName);
+    if (!!existingServiceFile) {
+        let { absolutePath, serviceShortName } = await findService(existingServiceFile);
+        generatedServicePath = absolutePath;
+        serviceFileName = `${serviceShortName}.service`;
+    } else {
+        // Get the name of the service
+        serviceName = await nameService(serviceName);
 
-    // Ask for the path to the main JS file for the service
-    relativePathToApp = await pathToService(relativePathToApp);
+        // Ask for the username for a user account that can run the service, and confirm it exists
+        userAccountName = await getServiceAccountName(undefined, userAccountName);
 
-    // Get any environment variables
-    if (!environmentVariables)
-        environmentVariables = await addEnvironmentVariables();
+        // Ask for the path to the main JS file for the service
+        relativePathToApp = await pathToService(relativePathToApp);
 
-    // Load the template file, and replace the username and the working directory in the template
-    let { template: serviceUnit, serviceShortName } = await loadTemplate({ serviceName, userAccountName, environmentVariables, relativePathToApp });
-    let serviceFileName = `${serviceShortName}.service`;
+        // Get any environment variables
+        if (!environmentVariables)
+            environmentVariables = await addEnvironmentVariables();
 
-    // Write to a local .service file
-    let generatedServicePath  = await writeServiceFile({ serviceUnit, serviceFileName });
+        // Load the template file, and replace the username and the working directory in the template
+        let { template: serviceUnit, serviceShortName } = await loadTemplate({ serviceName, userAccountName, environmentVariables, relativePathToApp });
+        serviceFileName = `${serviceShortName}.service`;
+
+        // Write to a local .service file
+        generatedServicePath  = await writeServiceFile({ serviceUnit, serviceFileName });
+    }
 
     let unitLink = getUnitSymlink(serviceFileName);
     await linkUnit({ unitLink, generatedServicePath });
@@ -282,9 +321,10 @@ async function removeService({ relativePathToApp }) {
     // Get the service
     let { serviceShortName } = await findService(relativePathToApp);
     let serviceFileName = `${serviceShortName}.service`;
+    Trace({ serviceShortName, serviceFileName });
 
     // Stop the unit, and disable launch at boot
-    await stopUnit(serviceFileName);
+    await stopUnit({ serviceFileName });
 
     // Remove the symlink
     let unitLink = getUnitSymlink(serviceFileName);
