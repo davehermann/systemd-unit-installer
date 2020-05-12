@@ -2,16 +2,18 @@
   "name": "systemd-unit-installer",
   "version": "0.1.0",
   "description": "Install/Remove an application via systemd units",
-  "main": "index.js",
+  "main": "src/installer.js",
   "author": "Dave Hermann",
   "private": true,
-  "scripts": {
-    "test": "node ./src/backend/app.js"
+  "bin": {
+    "service": "./src/app.js"
   },
   "devDependencies": {
     "eslint": "^7.0.0"
   },
   "dependencies": {
+    "@davehermann/fs-utilities": "^0.1.1",
+    "@davehermann/process-spawner": "^0.2.0",
     "multi-level-logger": "^1.3.0"
   }
 }
