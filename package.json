@@ -12,11 +12,11 @@
     "service": "./src/app.js"
   },
   "devDependencies": {
-    "eslint": "^7.0.0"
+    "eslint": "^7.5.0"
   },
   "dependencies": {
     "@davehermann/fs-utilities": "^0.1.1",
-    "@davehermann/process-spawner": "^0.2.0",
-    "multi-level-logger": "^1.3.0"
+    "@davehermann/process-spawner": "^0.3.0",
+    "multi-level-logger": "^1.3.2"
   }
 }
