@@ -141,12 +141,16 @@ async function runLoop() {
     }
 }
 
-InitializeLogging(process.env.LOG_LEVEL || `info`);
+if (require.main === module) {
+    InitializeLogging(process.env.LOG_LEVEL || `info`);
 
-runLoop()
-    .catch(err => {
-        // Log the error data as-is
-        Err(`---EXCEPTION--- (Unexpected exit)`);
-        Err(err, true);
-    });
+    runLoop()
+        .catch(err => {
+            // Log the error data as-is
+            Err(`---EXCEPTION--- (Unexpected exit)`);
+            Err(err, true);
+        });
+}
 
+module.exports.InstallService = InstallService;
+module.exports.RemoveService = RemoveService;
