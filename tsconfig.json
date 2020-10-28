@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ES2018",
+        "moduleResolution": "Node",
+        "module": "CommonJS",
+        "outDir": "./dist"
+    },
+    "files": [
+        "./src/app.ts"
+    ]
+}
