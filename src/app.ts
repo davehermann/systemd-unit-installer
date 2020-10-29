@@ -6,8 +6,9 @@ import * as path from "path";
 
 // NPM Modules
 import { InitializeLogging, Err, Trace, Log } from "multi-level-logger";
-import { RemoveService } from "./removeService";
 import { IArgumentData, IRecognizedParameters } from "./interfaces";
+import { InstallService } from "./installService";
+import { RemoveService } from "./removeService";
 
 async function displayHelp() {
     const helpContents = await fs.readFile(path.join(__dirname, `help`), { encoding: `utf8` });
@@ -131,8 +132,8 @@ async function runLoop() {
 
     if (!!help)
         Log(help, { configuration: { includeCodeLocation: false, includeTimestamp: false } });
-    // else if (installService)
-    //     await InstallService(argList);
+    else if (installService)
+        await InstallService(argList);
     else if (installService === false)
         await RemoveService(argList);
 }
