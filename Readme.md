@@ -39,18 +39,18 @@
 
 | Flag | Expected Data | Description |
 | ---- | ------------- | ----------- |
-| `--account` | Account name | Name of the system account to run the service as |
-| `--ev` | Environment Variables | Comma-separated list of `NAME=value` pairs to add as environment variables to the unit file |
-| `--existing` | Path to existing `.service` file | Relative path from the current working directory to a previously generated file when using `service-installer` to add+start/enable or stop/disable+remove a unit file |
-| `--name` | Service name | Your name for the service in systemd |
-| `--no-start` | **NONE** | When creating and adding to systemd, <u>do not</u> start/enable the service |
-| `--path` | Application main .js file | Relative path from the current working directory to the main application file |
+| <nobr>`--account`</nobr> | Account name | Name of the system account to run the service as |
+| <nobr>`--ev`</nobr> | Environment Variables | Comma-separated list of `NAME=value` pairs to add as environment variables to the unit file |
+| <nobr>`--existing`</nobr> | Path to existing `.service` file | Relative path from the current working directory to a previously generated file when using `service-installer` to add+start/enable or stop/disable+remove a unit file |
+| <nobr>`--name`</nobr> | Service name | Your name for the service in systemd |
+| <nobr>`--no-start`</nobr> | **NONE** | When creating and adding to systemd, <u>do not</u> start/enable the service |
+| <nobr>`--path`</nobr> | Application main .js file | Relative path from the current working directory to the main application file |
 
 ### Uninstall Options
 
 | Flag | Expected Data | Description |
 | ---- | ------------- | ----------- |
-| `--path` | `.service` file location | Path to the service file to uninstall<br />*Defaults to the first `.service` file found in the current working directory* |
+| <nobr>`--path`</nobr> | `.service` file location | Path to the service file to uninstall<br />*Defaults to the first `.service` file found in the current working directory* |
 
 ## API Usage
 
