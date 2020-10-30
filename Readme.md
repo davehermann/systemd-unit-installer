@@ -35,6 +35,8 @@
 
 ### Install Options
 
+**Options *not* included will be prompted for by the executable as-needed**
+
 | Flag | Expected Data | Description |
 | ---- | ------------- | ----------- |
 | `--account` | Account name | Name of the system account to run the service as |
@@ -49,3 +51,14 @@
 | Flag | Expected Data | Description |
 | ---- | ------------- | ----------- |
 | `--path` | `.service` file location | Path to the service file to uninstall<br />*Defaults to the first `.service` file found in the current working directory* |
+
+## API Usage
+
+Install and Remove can be directly utilized.
+
+```javascript
+import { InstallService, RemoveService } from "@davehermann/systemd-unit-installer";
+```
+
++ Typescript definitions are included (see `IRecognizedParameters` which is also exported)
++ Pass all expected parameters to the functions to prevent user prompting
