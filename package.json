@@ -2,15 +2,15 @@
   "name": "@davehermann/systemd-unit-installer",
   "version": "0.1.2",
   "description": "Install/Remove an application via systemd units",
-  "main": "src/installer.js",
+  "main": "dist/api.js",
+  "types": "dist/api.d.ts",
   "author": "Dave Hermann",
   "repository": {
     "type": "git",
     "url": "https://github.com/davehermann/systemd-unit-installer"
   },
   "bin": {
-    "service": "./src/app.js",
-    "tsservice": "./dist/app.js"
+    "service": "./dist/app.js"
   },
   "scripts": {
     "build": "tsc",
