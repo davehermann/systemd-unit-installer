@@ -136,7 +136,7 @@ async function writeServiceFile(serviceUnit: string, serviceFileName: string) {
 
     await fs.writeFile(filePath, serviceUnit, { encoding: `utf8` });
 
-    Log(`\nA unit file has been generated at "${filePath}"`);
+    Log(`A unit file has been generated at "${filePath}"`, { configuration: { includeCodeLocation: false } });
 
     return filePath;
 }
@@ -164,7 +164,7 @@ async function linkUnit(unitLink: string, generatedServicePath: string) {
 
     await SpawnProcess(`sudo ln -s "${generatedServicePath}" "${unitLink}"`);
 
-    Log(`\nThe unit file has been symlinked to '${unitLink}'\n`);
+    Log(`The unit file has been symlinked to '${unitLink}'\n`, { configuration: { includeCodeLocation: false } });
 }
 
 /**
@@ -175,7 +175,7 @@ async function linkUnit(unitLink: string, generatedServicePath: string) {
  */
 async function startUnit(serviceName: string, serviceFileName: string, doNotStartEnable: boolean) {
     if (doNotStartEnable) {
-        Log(`${serviceName} service has been configured as a service; however, the systemd unit has not had start or enable run.\n\nPlease start/enable when you are ready to use.`);
+        Log(`${serviceName} service has been configured as a service; however, the systemd unit has not had start or enable run.\n\nPlease start/enable when you are ready to use.`, { configuration: { includeCodeLocation: false, includeTimestamp: false } });
     } else {
         try {
             await SpawnProcess(`sudo systemctl enable ${serviceFileName}`);
@@ -185,13 +185,13 @@ async function startUnit(serviceName: string, serviceFileName: string, doNotStar
                 throw err;
         }
         await SpawnProcess(`sudo systemctl start ${serviceFileName}`);
-        Log(`\n${serviceName} service has been started, and enabled to launch at boot.`);
+        Log(`${serviceName} service has been started, and enabled to launch at boot.`, { configuration: { includeCodeLocation: false } });
     }
 }
 
 /** Add service to Systemd, and - optionally - enable and start */
 async function installService({ existingServiceFile, serviceName, userAccountName, relativePathToApp, environmentVariables, doNotStartEnable }: IRecognizedParameters = {}) {
-    Log(`Installing as a systemd unit`);
+    Log(`Installing as a systemd unit`, { configuration: { includeTimestamp: false, includeCodeLocation: false } });
 
     // Check for Linux as this OS
     CheckForLinuxOs();

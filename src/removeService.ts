@@ -22,7 +22,7 @@ async function stopUnit(serviceFileName: string) {
         if (err.search(/^Removed/) != 0)
             throw err;
     }
-    Log(`\n${serviceFileName} has been stopped, and disabled from launch at boot.`);
+    Log(`${serviceFileName} has been stopped, and disabled from launch at boot.`, { configuration: { includeCodeLocation: false } });
 }
 
 /**
@@ -45,14 +45,14 @@ async function unlinkUnit(unitLink: string) {
     if (linkExists)
         await SpawnProcess(`sudo rm ${unitLink}`);
 
-    Log(`\nThe symlink to '${unitLink}' has been removed\n`);
+    Log(`The symlink to '${unitLink}' has been removed\n`, { configuration: { includeCodeLocation: false } });
 }
 
 /**
  * Stop, disable, and remove a service from Systemd
  */
 async function removeService({ relativePathToApp }: IRecognizedParameters) {
-    Log(`Removing systemd unit`);
+    Log(`Removing systemd unit`, { configuration: { includeCodeLocation: false, includeTimestamp: false } });
 
     // Check for Linux as this OS
     CheckForLinuxOs();
