@@ -1,0 +1,13 @@
+[Unit]
+Description={serviceName} service
+After=network.target
+
+[Service]
+User={username}
+WorkingDirectory={workingDirectory}
+ExecStart=/usr/bin/node {applicationPath}
+SyslogIdentifier={serviceShortName}
+{environmentVariables}
+
+[Install]
+WantedBy=multi-user.target
