@@ -2,21 +2,28 @@
   "name": "@davehermann/systemd-unit-installer",
   "version": "0.1.2",
   "description": "Install/Remove an application via systemd units",
-  "main": "src/installer.js",
+  "main": "dist/api.js",
+  "types": "dist/api.d.ts",
   "author": "Dave Hermann",
   "repository": {
     "type": "git",
     "url": "https://github.com/davehermann/systemd-unit-installer"
   },
   "bin": {
-    "service": "./src/app.js"
+    "service-installer": "./dist/app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "cp ./src/help ./dist/help && cp ./src/systemd-service-template ./dist/systemd-service-template"
   },
   "devDependencies": {
-    "eslint": "^7.5.0"
+    "@types/node": "^14.14.5",
+    "eslint": "^7.5.0",
+    "typescript": "^4.0.5"
   },
   "dependencies": {
-    "@davehermann/fs-utilities": "^0.1.1",
+    "@davehermann/fs-utilities": "^0.3.4",
     "@davehermann/process-spawner": "^0.3.0",
-    "multi-level-logger": "^1.3.2"
+    "multi-level-logger": "^2.0.4"
   }
 }
