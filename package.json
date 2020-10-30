@@ -10,7 +10,7 @@
     "url": "https://github.com/davehermann/systemd-unit-installer"
   },
   "bin": {
-    "service": "./dist/app.js"
+    "service-installer": "./dist/app.js"
   },
   "scripts": {
     "build": "tsc",

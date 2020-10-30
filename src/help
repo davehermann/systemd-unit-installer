@@ -1,7 +1,7 @@
 
 Service Installer
 -----------------
-Usage: service <action> [options]
+Usage: service-installer <action> [options]
 
 --<Actions>--
     i[nstall]    - Create a systemd unit file, and install as a service
