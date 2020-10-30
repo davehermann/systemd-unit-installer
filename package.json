@@ -1,6 +1,6 @@
 {
   "name": "@davehermann/systemd-unit-installer",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Install/Remove an application via systemd units",
   "main": "dist/api.js",
   "types": "dist/api.d.ts",
