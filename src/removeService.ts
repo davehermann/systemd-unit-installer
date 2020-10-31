@@ -1,8 +1,9 @@
 // Node Modules
 import { promises as fs } from "fs";
+import * as path from "path";
 
 // NPM Modules
-import { Log, Trace } from "multi-level-logger";
+import { Log, Trace, Dev } from "multi-level-logger";
 import { SpawnProcess } from "@davehermann/process-spawner";
 
 // Application Modules
@@ -51,7 +52,7 @@ async function unlinkUnit(unitLink: string) {
 /**
  * Stop, disable, and remove a service from Systemd
  */
-async function removeService({ relativePathToApp }: IRecognizedParameters) {
+async function removeService({ relativePathToApp, instanceName }: IRecognizedParameters) {
     Log(`Removing systemd unit`, { configuration: { includeCodeLocation: false, includeTimestamp: false } });
 
     // Check for Linux as this OS
@@ -62,15 +63,14 @@ async function removeService({ relativePathToApp }: IRecognizedParameters) {
     CheckRunningAsTheRootUser();
 
     // Get the service file name
-    const { serviceShortName } = await FindServiceFile(relativePathToApp);
-    const serviceFileName = `${serviceShortName}.service`;
-    Trace({ serviceShortName, serviceFileName });
+    const { serviceFileNameWithInstance } = await FindServiceFile(relativePathToApp, instanceName);
 
     // Stop the unit, and disable launch at boot
-    await stopUnit(serviceFileName);
+    await stopUnit(serviceFileNameWithInstance);
 
     // Remove the symlink
-    const unitLink = GetSymLinkForSystemd(serviceFileName);
+    const unitLink = GetSymLinkForSystemd(serviceFileNameWithInstance);
+    Dev({ unitLink });
     await unlinkUnit(unitLink);
 }
 

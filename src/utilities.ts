@@ -38,10 +38,11 @@ function checkRunningAsRoot() {
  * Get the absolute path to the service file
  *
  * @param relativePathToApp - relative path to the location of the service file
+ * @param instanceName - Instance identifier
  *
  * @returns Both the absolute path, and the service name as listed in the file
  */
-async function findService(relativePathToApp): Promise<IExistingServiceFile> {
+async function findService(relativePathToApp: string, instanceName: string): Promise<IExistingServiceFile> {
     // If a path has been specified, use that file
     // If not, try to locate a .service file in the current directory
     if (!relativePathToApp) {
@@ -65,7 +66,15 @@ async function findService(relativePathToApp): Promise<IExistingServiceFile> {
     let serviceShortName = id.split(`=`)[1];
     Trace({ id, serviceShortName });
 
-    return { absolutePath, serviceShortName };
+    const serviceFileName = path.basename(absolutePath),
+        serviceFileNameWithInstance = serviceFileName.replace(/\@/, `@${instanceName}`);
+    Trace({ serviceFileName, serviceFileNameWithInstance });
+
+    // If there's an @ at the end of the file name, and no instance name is specified, throw an exception
+    if ((serviceFileName.search(/\@\.service$/) > 0) && !instanceName)
+        throw new Error(`Service unit file "${serviceFileName}" is a template and requires an instance identifier.\nNo instance identifier specified`);
+
+    return { absolutePath, serviceShortName, serviceFileName, serviceFileNameWithInstance };
 }
 
 /**

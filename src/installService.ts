@@ -31,6 +31,13 @@ async function nameService(serviceName: string): Promise<string> {
     return inputName;
 }
 
+async function nameInstance(): Promise<string> {
+    const prompt = `Name of instance`;
+
+    const instanceId = await ReadUserInput(prompt);
+    return instanceId;
+}
+
 /**
  * Ask for the username for a user account that can run the service, and confirm it exists
  * @param enteredName - The account name to search for
@@ -105,10 +112,12 @@ async function addEnvironmentVariables(variables?: Array<string>) {
  * Load the template file, and replace the needed values within it
  * @param values - Replacement values for the template
  */
-async function loadTemplate({ serviceName, userAccountName, environmentVariables, relativePathToApp }: IRecognizedParameters) {
+async function loadTemplate({ serviceName, userAccountName, instanceName, environmentVariables, relativePathToApp }: IRecognizedParameters) {
     const template = await fs.readFile(UNIT_TEMPLATE, { encoding: `utf8` });
 
-    const serviceShortName = serviceName.toLowerCase().replace(` `, `-`);
+    const serviceShortName = serviceName.toLowerCase().replace(` `, `-`),
+        serviceInstanceName = !!instanceName ? `${serviceShortName}@${instanceName}` : serviceShortName,
+        serviceShortNameAsInstance = !!serviceInstanceName ? `${serviceShortName}@` : serviceShortName;
 
     let allEnvironmentVariables = environmentVariables.map(ev => { return `Environment="${ev}"`; }).join(`\n`);
     if (allEnvironmentVariables.length > 0)
@@ -122,7 +131,7 @@ async function loadTemplate({ serviceName, userAccountName, environmentVariables
         .replace(/\{workingDirectory\}/g, process.cwd())
         .replace(/\{environmentVariables\}\n/g, allEnvironmentVariables);
 
-    return { serviceUnit, serviceShortName };
+    return { serviceUnit, serviceShortName: serviceShortNameAsInstance, serviceInstanceName };
 }
 
 /**
@@ -190,7 +199,7 @@ async function startUnit(serviceName: string, serviceFileName: string, doNotStar
 }
 
 /** Add service to Systemd, and - optionally - enable and start */
-async function installService({ existingServiceFile, serviceName, userAccountName, relativePathToApp, environmentVariables, doNotStartEnable }: IRecognizedParameters = {}) {
+async function installService({ existingServiceFile, serviceName, instanceName, userAccountName, relativePathToApp, environmentVariables, doNotStartEnable }: IRecognizedParameters = {}) {
     Log(`Installing as a systemd unit`, { configuration: { includeTimestamp: false, includeCodeLocation: false } });
 
     // Check for Linux as this OS
@@ -204,12 +213,14 @@ async function installService({ existingServiceFile, serviceName, userAccountNam
         serviceFileName: string;
 
     if (!!existingServiceFile) {
-        const { absolutePath, serviceShortName } = await FindServiceFile(existingServiceFile);
+        const { absolutePath, serviceFileNameWithInstance } = await FindServiceFile(existingServiceFile, instanceName);
         generatedServicePath = absolutePath;
-        serviceFileName = `${serviceShortName}.service`;
+        serviceFileName = serviceFileNameWithInstance;
     } else {
         // Get the name of the service
         serviceName = await nameService(serviceName);
+
+        instanceName = await nameInstance();
 
         // Get a confirmed username to run the service
         userAccountName = await getServiceAccountName(userAccountName);
@@ -222,11 +233,14 @@ async function installService({ existingServiceFile, serviceName, userAccountNam
             environmentVariables = await addEnvironmentVariables();
 
         // Get the filled in template
-        const { serviceUnit, serviceShortName } = await loadTemplate({ serviceName, userAccountName, environmentVariables, relativePathToApp });
+        const { serviceUnit, serviceShortName, serviceInstanceName } = await loadTemplate({ serviceName, instanceName, userAccountName, environmentVariables, relativePathToApp });
         serviceFileName = `${serviceShortName}.service`;
 
         // Write to a local .service file
         generatedServicePath  = await writeServiceFile(serviceUnit, serviceFileName);
+
+        // For linking, the service file name needs the full instance name
+        serviceFileName = `${serviceInstanceName}.service`;
     }
 
     let unitLink = GetSymLinkForSystemd(serviceFileName);
