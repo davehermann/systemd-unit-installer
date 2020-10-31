@@ -11,12 +11,14 @@ Usage: service-installer <action> [options]
     --account <account name> - Name of system account to run the service
     --ev <variable-list>     - Comma-separated list of NAME=value pairs
     --existing <path>        - Path to existing service file to not regenerate
+    --instance <identifier>  - String to identify service instance
     --name <NAME>            - The name for the service
     --no-start               - Create and install the unit file, but do not start/enable it
     --path <path>            - Path to application, from current directory
                                Current Directory: {{CURRENT_DIRECTORY}}
 
 --[Options] for uninstall--
+    --instance <identifier>  - String to identify service instance
     --path <path>    - Path to .service file to uninstall.
                        Uninstall will automatically use the first .service in the current directory if not specified.
                        Current Directory: {{CURRENT_DIRECTORY}}

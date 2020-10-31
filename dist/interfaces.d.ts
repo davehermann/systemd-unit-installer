@@ -34,6 +34,14 @@ interface IRecognizedParameters {
      */
     serviceName?: string;
     /**
+     * Name used to identify the instance
+     *   + Inclusion automatically names the `.service` file as a template: `@.service`
+     *
+     * @remarks
+     * _install only_
+     */
+    instanceName?: string;
+    /**
      * Only create an install the unit; do not start or enable it
      *
      * @remarks
@@ -50,5 +58,7 @@ interface IRecognizedParameters {
 interface IExistingServiceFile {
     absolutePath: string;
     serviceShortName: string;
+    serviceFileName: string;
+    serviceFileNameWithInstance: string;
 }
 export { IArgumentData, IExistingServiceFile, IRecognizedParameters, };

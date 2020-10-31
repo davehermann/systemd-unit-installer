@@ -46,7 +46,7 @@ async function unlinkUnit(unitLink) {
 /**
  * Stop, disable, and remove a service from Systemd
  */
-async function removeService({ relativePathToApp }) {
+async function removeService({ relativePathToApp, instanceName }) {
     multi_level_logger_1.Log(`Removing systemd unit`, { configuration: { includeCodeLocation: false, includeTimestamp: false } });
     // Check for Linux as this OS
     utilities_1.CheckForLinuxOs();
@@ -55,13 +55,12 @@ async function removeService({ relativePathToApp }) {
     // Check for running as root/via sudo
     utilities_1.CheckRunningAsTheRootUser();
     // Get the service file name
-    const { serviceShortName } = await utilities_1.FindServiceFile(relativePathToApp);
-    const serviceFileName = `${serviceShortName}.service`;
-    multi_level_logger_1.Trace({ serviceShortName, serviceFileName });
+    const { serviceFileNameWithInstance } = await utilities_1.FindServiceFile(relativePathToApp, instanceName);
     // Stop the unit, and disable launch at boot
-    await stopUnit(serviceFileName);
+    await stopUnit(serviceFileNameWithInstance);
     // Remove the symlink
-    const unitLink = utilities_1.GetSymLinkForSystemd(serviceFileName);
+    const unitLink = utilities_1.GetSymLinkForSystemd(serviceFileNameWithInstance);
+    multi_level_logger_1.Dev({ unitLink });
     await unlinkUnit(unitLink);
 }
 exports.RemoveService = removeService;

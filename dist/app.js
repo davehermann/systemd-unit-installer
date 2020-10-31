@@ -43,6 +43,14 @@ function getAdditionalParameters(args) {
                     argList.existingServiceFile = path;
                 }
                 break;
+            case `--instance`:
+                {
+                    const instanceIdentifier = args.shift();
+                    if (!instanceIdentifier)
+                        throw new Error(`--instance: requires a value for the identifier of the service instance`);
+                    argList.instanceName = instanceIdentifier;
+                }
+                break;
             case `--name`:
                 {
                     const serviceName = args.shift();
@@ -118,6 +126,6 @@ if (require.main === module) {
         .catch(err => {
         multi_level_logger_1.Err(`---EXCEPTION--- (Unexpected exit)`, { configuration: { includeTimestamp: false, includeCodeLocation: false } });
         multi_level_logger_1.Err(err, { configuration: { includeTimestamp: false, includeCodeLocation: false } });
-        multi_level_logger_1.Log(`\nTry running with "--help" for more information`, { configuration: { includeTimestamp: false, includeCodeLocation: false } });
+        multi_level_logger_1.Log(`\nTry running with "--help" for more information\n`, { configuration: { includeTimestamp: false, includeCodeLocation: false } });
     });
 }

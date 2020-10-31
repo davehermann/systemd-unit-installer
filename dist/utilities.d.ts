@@ -9,10 +9,11 @@ declare function checkRunningAsRoot(): void;
  * Get the absolute path to the service file
  *
  * @param relativePathToApp - relative path to the location of the service file
+ * @param instanceName - Instance identifier
  *
  * @returns Both the absolute path, and the service name as listed in the file
  */
-declare function findService(relativePathToApp: any): Promise<IExistingServiceFile>;
+declare function findService(relativePathToApp: string, instanceName: string): Promise<IExistingServiceFile>;
 /**
  * Get the symbolic link for the unit file in /etc/systemd/system
  * @param serviceFileName - Name of the service unit
