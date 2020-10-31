@@ -58,9 +58,13 @@ interface IRecognizedParameters {
 }
 
 interface IExistingServiceFile {
+    /** The absolute path to the `.service` file on disk */
     absolutePath: string;
+    /** The identifier used internally by systemd _(SyslogIdentifier field)_ */
     serviceShortName: string;
+    /** The filename without the path for the `.service` unit file */
     serviceFileName: string;
+    /** The `.service` file name, including the `@ID` instance identification string _(if needed)_ */
     serviceFileNameWithInstance: string;
 }
 
